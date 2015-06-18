@@ -13,7 +13,7 @@
 
     <link rel="stylesheet" href="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/themes/css/cartodb.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="js/codemirror/lib/codemirror.css">
     <link rel="icon" type="image/png" href="./favicon.png">
   </head>
 
@@ -24,69 +24,110 @@
       overflow: hidden;
     }
 
-    body {
-      padding-top: 50px;
-    }
+ 
 
     #map {
-      width: auto;
       height: 100%;
+    }
+
+    .col-xs-6 {
+      padding:0;
+      height:100%;
+    }
+
+    .col-lg-12 {
+      padding:0;
+      height:50%;
+      border-bottom: 1px solid #D4D1D1;
+    }
+
+    .CodeMirror {
+      height:100%;
+    }
+
+    .label {
+      position: absolute;
+      top: 7px;
+      right: 6px;
+      border: solid 1px #D4D1D1;
+      height: 22px;
+      padding: 0 6px;
+      line-height: 22px;
+      text-align: center;
+      font-size: 12px;
+      color: #B3B3B3;
+      border-radius: 5px;
+      z-index: 1;
     }
 
   </style>
 
   <body>
 
-    <nav class="navbar navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">CartoDB Bootstrap Template</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
 
     <div id="container">
-
-      <div id="map">
+      <div id="map" class="col-xs-6">
       </div>
+      <div class="col-xs-6">
+        <div id="sql" class="col-lg-12">
+          <span class="label">SQL</span>
+        </div>
+        <div id="cartoCSS" class="col-lg-12">
+          <span class="label">CartoCSS</span>
+        </div>
+      </div>
+      
 
     </div><!-- /.container -->
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.13/cartodb.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="js/codemirror/lib/codemirror.js"></script>
+    <script src="js/codemirror/mode/sql/sql.js"></script>
     <script>
 
-    var map = new L.Map('map', { 
-      center: [40.1,-100.3],
-      zoom: 4
+
+
+
+    //setup codeMirror divs
+    var sqlEditor = CodeMirror(document.getElementById("sql"),{
+      mode: 'text/x-sql',
+      lineNumbers: true,
+      readOnly : true
     });
 
-    L.tileLayer('https://dnv9my2eseobd.cloudfront.net/v3/cartodb.map-4xtxp73f/{z}/{x}/{y}.png', {
-      attribution: 'Mapbox <a href="http://mapbox.com/about/maps" target="_blank">Terms &amp; Feedback</a>'
-    }).addTo(map);
+    var cssEditor = CodeMirror(document.getElementById("cartoCSS"),{
+      mode: 'text/html',
+      lineNumbers: true,
+      readOnly : true
+    });
 
-    var layerUrl = 'http://documentation.cartodb.com/api/v2/viz/236085de-ea08-11e2-958c-5404a6a683d5/viz.json';
+    //get viz.json URL (should be appended to page URL with a #)
+    if(window.location.hash) {
+      var vizJSON = window.location.hash.slice( 1 );
+      console.log(vizJSON);
+    } else {
+      console.log("No viz.json hashed into URL");
+    }
 
-    cartodb.createLayer(map, layerUrl)
-      .addTo(map)
-      .on('done', function(layer) {
 
-      }).on('error', function() {
-        //log the error
+    cartodb.createVis('map', vizJSON)
+      .on('done', function(vis,layers) {
+        //get options from the first cartoDB layer
+        var opt = layers[1].options.options.layer_definition.layers[0].options;
+
+        var strings = {
+          cartocss:opt.cartocss,
+          sql:opt.sql
+        }
+
+        console.log(strings);
+
+        cssEditor.setValue(strings.cartocss)
+        sqlEditor.setValue(strings.sql)
+
       });
 
     </script>
