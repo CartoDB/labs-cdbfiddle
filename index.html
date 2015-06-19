@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="./favicon.ico">
 
     <title>CDBFiddle</title>
 
@@ -78,8 +77,6 @@
           <span class="label">CartoCSS</span>
         </div>
       </div>
-      
-
     </div><!-- /.container -->
 
 
@@ -89,9 +86,6 @@
     <script src="js/codemirror/lib/codemirror.js"></script>
     <script src="js/codemirror/mode/sql/sql.js"></script>
     <script>
-
-
-
 
     //setup codeMirror divs
     var sqlEditor = CodeMirror(document.getElementById("sql"),{
@@ -109,7 +103,6 @@
     //get viz.json URL (should be appended to page URL with a #)
     if(window.location.hash) {
       var vizJSON = window.location.hash.slice( 1 );
-      console.log(vizJSON);
     } else {
       console.log("No viz.json hashed into URL");
     }
@@ -125,11 +118,12 @@
           sql:opt.sql
         }
 
-        console.log(strings);
-
         cssEditor.setValue(strings.cartocss)
         sqlEditor.setValue(strings.sql)
 
+        //print iframe code to the console
+        var iframeCode = 'iframe code: <iframe src="http://cartodb.github.io/labs-cdbfiddle/#' + vizJSON + '" style="border:0px #FFFFFF none;" name="myiFrame" scrolling="no" frameborder="1" marginheight="0px" marginwidth="0px" height="400px" width="750px"></iframe>';
+        console.log(iframeCode);
       });
 
     </script>
