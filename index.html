@@ -10,7 +10,7 @@
 
     <title>CDBFiddle</title>
 
-    <link rel="stylesheet" href="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/themes/css/cartodb.css" />
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="js/codemirror/lib/codemirror.css">
     <link rel="icon" type="image/png" href="./favicon.png">
@@ -81,7 +81,7 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.13/cartodb.js"></script>
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script src="js/codemirror/lib/codemirror.js"></script>
     <script src="js/codemirror/mode/sql/sql.js"></script>
@@ -110,8 +110,16 @@
 
     cartodb.createVis('map', vizJSON)
       .on('done', function(vis,layers) {
-        //get options from the first cartoDB layer
-        var opt = layers[1].options.options.layer_definition.layers[0].options;
+        console.log(layers);
+
+        //check if it is a torque layer, if so options that contain SQL and cartoCSS are nested differently
+
+        if(layers[1].options.animationDuration) {
+          var opt = layers[1].options;
+        } else {
+          var opt = layers[1].options.options.layer_definition.layers[0].options;
+        }
+
 
         var strings = {
           cartocss:opt.cartocss,
