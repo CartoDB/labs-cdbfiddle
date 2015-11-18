@@ -61,6 +61,27 @@
       z-index: 1;
     }
 
+    .tabNumber {
+      display: inline-block;
+      border: 2px solid rgb(46, 113, 196);
+      border-radius: 10px;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      font-size: 12px;
+      position: relative;
+      top: -2px;
+      margin-right: 4px;
+    }
+
+    .nav-tabs {
+      margin: 5px 5px 0 29px;
+    }
+
+    .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+      background-color: #F1F1F1;
+    }
+
   </style>
 
   <body>
@@ -70,6 +91,11 @@
       <div id="map" class="col-xs-6">
       </div>
       <div class="col-xs-6">
+        <ul class="nav nav-tabs">
+         <!--  <li role="presentation" class="active"><a href="#">Home</a></li>
+          <li role="presentation"><a href="#">Profile</a></li>
+          <li role="presentation"><a href="#">Messages</a></li> -->
+        </ul>
         <div id="sql" class="col-lg-12">
           <span class="label">SQL</span>
         </div>
@@ -112,6 +138,20 @@
       .on('done', function(vis,layers) {
         console.log(layers);
 
+        layers[1].layers.forEach(function(layer,i) {
+          var options = { 
+            number: i+1, 
+            layerName: layer.options.layer_name
+          }
+
+          if(i==0) {
+            options.class='class=active'
+          }
+
+          var tabHTML = Mustache.render('<li role="presentation" {{class}}><a href="#"><div class="tabNumber">{{number}}</div> {{layerName}}</a></li>', options);
+          $('.nav-tabs').append(tabHTML);
+        });
+
         //check if it is a torque layer, if so options that contain SQL and cartoCSS are nested differently
 
         if(layers[1].options.animationDuration) {
@@ -129,7 +169,7 @@
         cssEditor.setValue(strings.cartocss)
         sqlEditor.setValue(strings.sql)
 
-        //print iframe code to the console
+        //log iframe code to the console
         var iframeCode = 'iframe code: <iframe src="http://cartodb.github.io/labs-cdbfiddle/#' + vizJSON + '" style="border:0px #FFFFFF none;" name="myiFrame" scrolling="no" frameborder="1" marginheight="0px" marginwidth="0px" height="400px" width="750px"></iframe>';
         console.log(iframeCode);
       });
