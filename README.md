@@ -1,11 +1,11 @@
 # cdbfiddle
-Template that takes a viz.json URL and displays a map, SQL pane, and CartoCSS pane for the cartoDB layers
+Template that takes a viz.json URL and displays a read-only map, SQL pane, and CartoCSS pane for the cartoDB layers
 
 Useful for providing examples on blog posts where the user can copy and paste the code to try themselves elsewhere
 
 ##How to use:
 
-Create a map in the CartoDB Editor using a *public* dataset.  Format your SQL, CartoCSS, and map view.  Get the viz.json URL from the *Pubish* button.  
+Create a map in the CartoDB Editor using *public* datasets.  Format your SQL, CartoCSS, and map view.  Get the viz.json URL from the *Pubish* button.  
 
 Go to: `http://cartodb.github.io/labs-cdbfiddle/#{yourviz.jsonURL}`
 
