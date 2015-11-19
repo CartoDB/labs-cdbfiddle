@@ -82,6 +82,10 @@
       background-color: #F1F1F1;
     }
 
+    .nav-tabs>li>a {
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-bottom: none;
+    }
   </style>
 
   <body>
@@ -109,9 +113,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src ="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/umd/tab.js"></script>
     <script src="js/codemirror/lib/codemirror.js"></script>
     <script src="js/codemirror/mode/sql/sql.js"></script>
     <script>
+
+    var mainLayers;
 
     //setup codeMirror divs
     var sqlEditor = CodeMirror(document.getElementById("sql"),{
@@ -133,14 +140,16 @@
       console.log("No viz.json hashed into URL");
     }
 
-
+    //create the map
     cartodb.createVis('map', vizJSON)
       .on('done', function(vis,layers) {
         console.log(layers);
+        mainLayers = layers;
 
         layers[1].layers.forEach(function(layer,i) {
           var options = { 
-            number: i+1, 
+            layerNumber: i,
+            tabNumber: i+1, 
             layerName: layer.options.layer_name
           }
 
@@ -148,32 +157,46 @@
             options.class='class=active'
           }
 
-          var tabHTML = Mustache.render('<li role="presentation" {{class}}><a href="#"><div class="tabNumber">{{number}}</div> {{layerName}}</a></li>', options);
+          var tabHTML = Mustache.render('<li role="presentation" {{class}}><a href="#" id="{{layerNumber}}" data-toggle="tab"><div class="tabNumber">{{tabNumber}}</div> {{layerName}}</a></li>', options);
           $('.nav-tabs').append(tabHTML);
+          
+
+          //listener for bootstrap tabs
+          $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var layerNumber = $(e.target).attr("id");
+            populateCode(layerNumber);
+          });
         });
 
-        //check if it is a torque layer, if so options that contain SQL and cartoCSS are nested differently
-
-        if(layers[1].options.animationDuration) {
-          var opt = layers[1].options;
-        } else {
-          var opt = layers[1].options.options.layer_definition.layers[0].options;
-        }
-
-
-        var strings = {
-          cartocss:opt.cartocss,
-          sql:opt.sql
-        }
-
-        cssEditor.setValue(strings.cartocss)
-        sqlEditor.setValue(strings.sql)
+        //fill in SQL and CartoCSS for sublayer 0
+        populateCode(0);
 
         //log iframe code to the console
         var iframeCode = 'iframe code: <iframe src="http://cartodb.github.io/labs-cdbfiddle/#' + vizJSON + '" style="border:0px #FFFFFF none;" name="myiFrame" scrolling="no" frameborder="1" marginheight="0px" marginwidth="0px" height="400px" width="750px"></iframe>';
         console.log(iframeCode);
       });
 
+      //given a sublayer number, grab SQL and CartoCSS and populate each codeMirror box
+      function populateCode(layerNumber) {
+        //check if it is a torque layer, if so options that contain SQL and cartoCSS are nested differently
+        if(mainLayers[1].options.options.layer_definition) {
+          if(mainLayers[1].options.animationDuration) {
+            var opt = mainLayers[1].options;
+          } else {
+            var opt = mainLayers[1].options.options.layer_definition.layers[layerNumber].options;
+          }
+
+          var strings = {
+            cartocss:opt.cartocss,
+            sql:opt.sql
+          }
+
+          cssEditor.setValue( strings.cartocss );
+          sqlEditor.setValue( strings.sql );
+        } else {
+          alert("Error: Can't access SQL and CartoCSS. Make sure your data tables are public.");
+        }
+      }
     </script>
   </body>
 </html>
